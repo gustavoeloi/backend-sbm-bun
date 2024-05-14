@@ -1,0 +1,33 @@
+{
+  "name": "sbm-backend",
+  "module": "index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "bun --watch src/http/server.ts",
+    "build": "bun build src/http/server.ts",
+    "start": "NODE_ENV=production bun src/http/server.ts",
+    "test": "bun test",
+    "generate": "drizzle-kit generate",
+    "migrate": "drizzle-kit migrate",
+    "seed": "bun src/db/seed.ts",
+    "studio": "bunx drizzle-kit studio"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^8.4.1",
+    "@rocketseat/eslint-config": "^2.2.2",
+    "@types/bun": "latest",
+    "drizzle-kit": "^0.21.1",
+    "eslint-plugin-drizzle": "^0.2.3",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "@paralleldrive/cuid2": "^2.2.2",
+    "@typescript-eslint/eslint-plugin": "^7.9.0",
+    "@typescript-eslint/parser": "^7.9.0",
+    "chalk": "^5.3.0",
+    "drizzle-orm": "^0.30.10",
+    "elysia": "^1.0.18",
+    "postgres": "^3.4.4",
+    "zod": "^3.23.8"
+  }
+}
