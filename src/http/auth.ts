@@ -13,4 +13,5 @@ export const auth = new Elysia()
       }),
     }),
   )
-  .use(cookie());
+  .use(cookie())
+
