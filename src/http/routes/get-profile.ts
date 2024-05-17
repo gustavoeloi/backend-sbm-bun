@@ -1,6 +1,7 @@
 import Elysia from "elysia";
 import { auth } from "../auth";
 import { db } from "../../db/connection";
+import { UnauthorizedError } from "../errors/unauthorized-errors";
 
 export const getProfile = new Elysia().use(auth).get("/me", async ({cookie: {authCookie}, jwt}) => {
   const authenticatedCookie = String(authCookie.cookie.value);
@@ -8,7 +9,7 @@ export const getProfile = new Elysia().use(auth).get("/me", async ({cookie: {aut
   const payload = await jwt.verify(authenticatedCookie)
 
   if(!payload) {
-    throw new Error("Unauthorizad.")
+    throw new UnauthorizedError()
   }
 
   const profile = {
@@ -23,7 +24,7 @@ export const getProfile = new Elysia().use(auth).get("/me", async ({cookie: {aut
   })
 
   if(!user) {
-    throw new Error("User not found!")
+    throw new UnauthorizedError()
   }
 
   return user;
