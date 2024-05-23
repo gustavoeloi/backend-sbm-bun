@@ -13,7 +13,7 @@ export const sendAuthLink = new Elysia().post(
     const { email } = body;
 
     const userFromEmail = await db.query.users.findFirst({
-      where(fields, { eq }) {
+      where(fields, { eq }) { 
         return eq(fields.email, email);
       },
     });
