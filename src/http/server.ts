@@ -6,6 +6,7 @@ import { signOut } from "./routes/sign-out";
 import { getProfile } from "./routes/get-profile";
 import { getManagedEstablishment } from "./routes/get-managed-establishment";
 import { getOrderDetails } from "./routes/get-order-details";
+import { approveOrder } from "./routes/approve-order";
 
 const app = new Elysia()
   .use(registerEstablishment)
@@ -15,6 +16,7 @@ const app = new Elysia()
   .use(getProfile)
   .use(getManagedEstablishment)
   .use(getOrderDetails)
+  .use(approveOrder)
   .onError(({ error, set, code }) => {
     switch (code) {
       case "VALIDATION": {
