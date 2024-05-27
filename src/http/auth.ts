@@ -8,8 +8,8 @@ export const auth = new Elysia()
   .error({
     UNAUTHORIZED: UnauthorizedError,
   })
-  .onError(({error, code, set}) => {
-    switch(code) {
+  .onError(({ error, code, set }) => {
+    switch (code) {
       case "UNAUTHORIZED": {
         set.status = 401;
         return { code, message: error.message }
@@ -25,5 +25,5 @@ export const auth = new Elysia()
       }),
     }),
   )
-  .use(cookie())
+  .use(cookie());
 
