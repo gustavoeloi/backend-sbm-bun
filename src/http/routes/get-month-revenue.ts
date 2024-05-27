@@ -24,7 +24,7 @@ export const getMonthRevenue = new Elysia().use(auth).get('/metrics/month-revenu
   const lastMonthWithYear = lastMonth.format('YYYY-MM');
 
   const monthsRevenue = await db.select({
-    monthWithYear: sql<String>`TO_CHAR(${orders.createdAt}, 'YYYY-MM')`,
+    monthWithYear: sql<string>`TO_CHAR(${orders.createdAt}, 'YYYY-MM')`,
     receipt: sum(orders.totalInCents).mapWith(Number),
   }).from(orders).where(and(
     eq(orders.establishmentId, payload.establishmentsId),
