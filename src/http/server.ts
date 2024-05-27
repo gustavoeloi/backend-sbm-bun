@@ -13,9 +13,9 @@ import { dispatchOrder } from "./routes/dispatch-order";
 import { getOrders } from "./routes/get-order";
 import { getMonthRevenue } from "./routes/get-month-revenue";
 import { getDayOrdersAmount } from "./routes/get-day-orders-amount";
-import { useMigrations } from "drizzle-orm/expo-sqlite/migrator";
 import { getMonthOrdersAmount } from "./routes/get-month-orders-amount";
 import { getMonthCanceledOrdersAmount } from "./routes/get-month-canceled-orders-amount";
+import { getPopularProducts } from "./routes/get-popular-products";
 
 const app = new Elysia()
   .use(registerEstablishment)
@@ -34,21 +34,21 @@ const app = new Elysia()
   .use(getDayOrdersAmount)
   .use(getMonthOrdersAmount)
   .use(getMonthCanceledOrdersAmount)
+  .use(getPopularProducts)
   .onError(({ error, set, code }) => {
     switch (code) {
       case "VALIDATION": {
-        set.status = error.status
-        return error.toResponse()
-
+        set.status = error.status;
+        return error.toResponse();
       }
       case "INTERNAL_SERVER_ERROR": {
-        set.status = 500
-        return { code, message: error.message }        
+        set.status = 500;
+        return { code, message: error.message };
       }
       default: {
-        console.error(error)
+        console.error(error);
 
-        return new Response(null, {status: 500})
+        return new Response(null, { status: 500 });
       }
     }
   });
