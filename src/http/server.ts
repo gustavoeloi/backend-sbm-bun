@@ -13,6 +13,8 @@ import { dispatchOrder } from "./routes/dispatch-order";
 import { getOrders } from "./routes/get-order";
 import { getMonthRevenue } from "./routes/get-month-revenue";
 import { getDayOrdersAmount } from "./routes/get-day-orders-amount";
+import { useMigrations } from "drizzle-orm/expo-sqlite/migrator";
+import { getMonthOrdersAmount } from "./routes/get-month-orders-amount";
 
 const app = new Elysia()
   .use(registerEstablishment)
@@ -29,6 +31,7 @@ const app = new Elysia()
   .use(getOrders)
   .use(getMonthRevenue)
   .use(getDayOrdersAmount)
+  .use(getMonthOrdersAmount)
   .onError(({ error, set, code }) => {
     switch (code) {
       case "VALIDATION": {
