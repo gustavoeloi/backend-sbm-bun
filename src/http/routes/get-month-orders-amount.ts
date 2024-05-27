@@ -4,7 +4,7 @@ import dayjs from "dayjs";
 import { UnauthorizedError } from "../errors/unauthorized-errors";
 import { db } from "../../db/connection";
 import { orders } from "../../db/schema";
-import { and, count, eq, gte, sql, sum } from "drizzle-orm";
+import { and, count, eq, gte, sql } from "drizzle-orm";
 
 export const getMonthOrdersAmount = new Elysia().use(auth).get('/metrics/month-orders-amount', async ({ cookie: { authCookie }, jwt, }) => {
 
