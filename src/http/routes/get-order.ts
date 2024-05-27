@@ -5,7 +5,7 @@ import { createSelectSchema } from 'drizzle-typebox'
 import { orders, users } from "../../db/schema";
 import { UnauthorizedError } from "../errors/unauthorized-errors";
 import { db } from "../../db/connection";
-import { and, count, eq, getTableColumns, ilike } from "drizzle-orm";
+import { and, count, desc, eq, getTableColumns, ilike, sql } from "drizzle-orm";
 
 export const getOrders = new Elysia().use(auth).get("/orders", async ({ query: { pageIndex, customerName, orderId, status }, jwt, cookie: { authCookie } }) => {
 
@@ -21,9 +21,13 @@ export const getOrders = new Elysia().use(auth).get("/orders", async ({ query: {
     throw new UnauthorizedError();
   }
 
-  const orderTableColumns = getTableColumns(orders);
-
-  const baseQuery = db.select(orderTableColumns).from(orders).innerJoin(users, eq(users.id, orders.customerId)).where(and(
+  const baseQuery = db.select({
+    orderId: orders.id,
+    createdAt: orders.createdAt,
+    status: orders.status,
+    totalInCents: orders.totalInCents,
+    customerName: users.name
+  }).from(orders).innerJoin(users, eq(users.id, orders.customerId)).where(and(
     eq(orders.establishmentId, payload.establishmentsId),
     orderId ? ilike(orders.id, `%${orderId}%`) : undefined,
     status ? eq(orders.status, status) : undefined,
@@ -33,7 +37,18 @@ export const getOrders = new Elysia().use(auth).get("/orders", async ({ query: {
 
   const [[{ count: amountOfOrders }], allOrders] = await Promise.all([
     db.select({ count: count() }).from(baseQuery.as('baseQuery')),
-    db.select().from(baseQuery.as("baseQuery")).offset(pageIndex * 10).limit(10)
+    db.select().from(baseQuery.as("baseQuery")).offset(pageIndex * 10).limit(10).orderBy((fields) => {
+      return [
+        sql`CASE ${fields.status} 
+          WHEN 'pending' THEN 1
+          WHEN 'processing' THEN 2
+          WHEN 'delivering' THEN 3
+          WHEN 'delivered' THEN 4
+          WHEN 'canceled' THEN 99
+        END`,
+        desc(fields.createdAt)
+      ]
+    })
   ])
 
   return {
