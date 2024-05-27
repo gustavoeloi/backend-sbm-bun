@@ -13,11 +13,7 @@ export const getOrders = new Elysia().use(auth).get("/orders", async ({ query: {
 
   const payload = await jwt.verify(cookie);
 
-  if (!payload) {
-    throw new UnauthorizedError();
-  }
-
-  if (!payload.establishmentsId) {
+  if (!payload || !payload.establishmentsId) {
     throw new UnauthorizedError();
   }
 

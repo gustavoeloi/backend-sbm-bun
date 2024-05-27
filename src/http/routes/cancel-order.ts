@@ -11,11 +11,7 @@ export const cancelOrder = new Elysia().use(auth).patch("/orders/:orderId/cancel
 
   const payload = await jwt.verify(cookie);
 
-  if (!payload) {
-    throw new UnauthorizedError();
-  }
-
-  if (!payload.establishmentsId) {
+  if (!payload || !payload.establishmentsId) {
     throw new UnauthorizedError();
   }
 

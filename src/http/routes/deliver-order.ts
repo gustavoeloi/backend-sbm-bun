@@ -11,11 +11,8 @@ export const deliverOrder = new Elysia().use(auth).patch("/orders/:orderId/deliv
 
   const payload = await jwt.verify(cookie);
 
-  if (!payload) {
-    throw new UnauthorizedError();
-  }
 
-  if (!payload.establishmentsId) {
+  if (!payload || !payload.establishmentsId) {
     throw new UnauthorizedError();
   }
 
