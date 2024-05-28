@@ -37,13 +37,36 @@ export const getDailyRevenueInPeriod = new Elysia().use(auth).get(
       .where(
         and(
           eq(orders.establishmentId, payload.establishmentsId),
-          gte(orders.createdAt, startDate.startOf("day").toDate()),
-          lte(orders.createdAt, endDate.endOf("day").toDate())
+          gte(
+            orders.createdAt,
+            startDate
+              .startOf("day")
+              .add(startDate.utcOffset(), "minutes")
+              .toDate()
+          ),
+          lte(
+            orders.createdAt,
+            endDate.endOf("day").add(startDate.utcOffset(), "minutes").toDate()
+          )
         )
       )
-      .groupBy(sql`TO_CHAR(${orders.createdAt}, 'DD/MM')`)
-      
-    return revenuePerDay;
+      .groupBy(sql`TO_CHAR(${orders.createdAt}, 'DD/MM')`);
+
+    const orderedRevenuePerDay = revenuePerDay.sort((a, b) => {
+      const [dayA, monthA] = a.date.split("/").map(Number);
+      const [dayB, monthB] = b.date.split("/").map(Number);
+
+      if(monthA === monthB) {
+        return dayA - dayB
+      } else {
+        const dateA = new Date(2024, monthA - 1)
+        const dateB = new Date(2024 - monthB - 1)
+
+        return dateA.getTime() - dateB.getTime()
+      }
+    });
+
+    return orderedRevenuePerDay;
   },
   {
     query: t.Object({
