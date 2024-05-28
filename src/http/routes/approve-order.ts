@@ -16,8 +16,11 @@ export const approveOrder = new Elysia().use(auth).patch("/orders/:orderId/appro
   }
 
   const order = await db.query.orders.findFirst({
-    where(fields, { eq }) {
-      return eq(fields.id, orderId)
+    where(fields, { eq, and }) {
+      return and(
+        eq(fields.id, orderId),
+        eq(fields.establishmentId, String(payload.establishmentsId))
+      )
     },
   })
 

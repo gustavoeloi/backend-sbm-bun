@@ -3,70 +3,75 @@ import { auth } from "../auth";
 import { UnauthorizedError } from "../errors/unauthorized-errors";
 import { db } from "../../db/connection";
 
-export const getOrderDetails = new Elysia().use(auth).get("/orders/:orderId", async ({ set, jwt, cookie: { authCookie }, params: { orderId } }) => {
+export const getOrderDetails = new Elysia().use(auth).get(
+  "/orders/:orderId",
+  async ({ set, jwt, cookie: { authCookie }, params: { orderId } }) => {
+    const cookie = String(authCookie.cookie.value);
 
-  const cookie = String(authCookie.cookie.value);
+    const payload = await jwt.verify(cookie);
 
-  const payload = await jwt.verify(cookie);
+    if (!payload) {
+      throw new UnauthorizedError();
+    }
 
-  if (!payload) {
-    throw new UnauthorizedError();
-  }
+    const profile = {
+      userId: payload.sub,
+      establishmentId: payload.establishmentsId,
+    };
 
-  const profile = {
-    userId: payload.sub,
-    establishmentId: payload.establishmentsId
-  }
+    if (!profile.establishmentId) {
+      throw new UnauthorizedError();
+    }
 
-  if (!profile.establishmentId) {
-    throw new UnauthorizedError();
-  }
-
-  const order = await db.query.orders.findFirst({
-    columns: {
-      id: true,
-      status: true,
-      totalInCents: true,
-      createdAt: true,
-    },
-    with: {
-      customer: {
-        columns: {
-          name: true,
-          phone: true,
-          email: true,
-        }
+    const order = await db.query.orders.findFirst({
+      columns: {
+        id: true,
+        status: true,
+        totalInCents: true,
+        createdAt: true,
       },
-      orderItems: {
-        columns: {
-          id: true,
-          totalInCents: true,
-          quantity: true
+      with: {
+        customer: {
+          columns: {
+            name: true,
+            phone: true,
+            email: true,
+          },
         },
-        with: {
-          product: {
-            columns: {
-              name: true
-            }
-          }
-        }
-      }
-    },
-    where(fields, { eq }) {
-      return eq(fields.id, orderId)
-    },
-  })
+        orderItems: {
+          columns: {
+            id: true,
+            totalInCents: true,
+            quantity: true,
+          },
+          with: {
+            product: {
+              columns: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
+      where(fields, { eq, and }) {
+        return and(
+          eq(fields.id, orderId),
+          eq(fields.establishmentId, String(profile.establishmentId))
+        );
+      },
+    });
 
-  if(!order) {
-    set.status = 400;
+    if (!order) {
+      set.status = 400;
 
-    return {message: "Order not found"}
+      return { message: "Order not found" };
+    }
+
+    return order;
+  },
+  {
+    params: t.Object({
+      orderId: t.String(),
+    }),
   }
-
-  return order;
-
-}, {
-  params: t.Object({
-    orderId: t.String()
-  })
-})
+);
